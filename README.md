@@ -1,34 +1,73 @@
-# CS2 Bunny Hop Script
+# CS2 Bhop Script
 
-This Python script is designed to enable bunny hopping in the game CS2 by continuously jumping while the spacebar key is held down.
+This is a Bunny Hop (Bhop) script for Counter-Strike 2 (CS2) that automates jumping while holding the space bar, providing a smoother and more consistent bunny hopping experience.
+
+## Features
+
+- Automatically jumps when the space bar is held down
+- Simple and lightweight script
+- Real-time process and memory manipulation using the `pymem` library
+- Fetches the latest game offsets from an online repository
 
 ## Requirements
+
 - Python 3.x
 - `pymem` library
-- `colorama` library
+- `requests` library
 
 ## Installation
-1. Install Python 3.x from the official website.
-2. Install the required libraries using pip:
-   ```bash
-   pip install pymem colorama
-   ```
+
+1. **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/Jesewe/cs2-bhop.git
+    cd cs2-bhop
+    ```
+
+2. **Install the required Python libraries:**
+
+    ```bash
+    pip install pymem requests
+    ```
 
 ## Usage
-1. Run the script in a Python environment.
-2. The script will search for the `cs2.exe` process and the `client.dll` module.
-3. If the process and module are found, the script will continuously write to the memory to enable jumping.
-4. Press the spacebar key to activate the bunny hop feature.
-5. Press Enter to exit the script.
 
-## Contributing
+1. **Ensure that Counter-Strike 2 (cs2.exe) is running.**
 
-We welcome contributions from the community!
+2. **Run the script:**
+
+    ```bash
+    python main.py
+    ```
+
+3. **Hold down the space bar to activate the bunny hop.**
+
+## Script Explanation
+
+The script works by:
+- Searching for the `cs2.exe` process.
+- Fetching the memory offsets required for jumping from an online repository.
+- Writing to the memory address responsible for the jump action when the space bar is pressed.
+
+### Code Overview
+
+- `fetch_offsets()`: Fetches the latest game offsets from an online repository.
+- `get_cs2_process()`: Retrieves the `cs2.exe` process.
+- `get_client_module(pm)`: Gets the `client.dll` module from the process.
+- `bhop()`: Main function that handles the bunny hopping logic.
+
+### Error Handling
+
+The script includes error handling for various exceptions, including process not found, module not found, memory read/write errors, and more.
+
+## Logging
+
+The script uses the `logging` module to log important information and errors, making it easier to debug and monitor the script's execution.
 
 ## License
 
-CS2 Bhop Script is released under the [MIT License](LICENSE).
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Disclaimer
 
-The CS2 Bhop script script is provided for educational and informational purposes only. The author do not endorse or promote cheating in any form, and this script should not be used to gain an unfair advantage in CS2 or any other game. The usage of this script may violate the terms of service of CS2, leading to penalties or a ban. Use it responsibly and at your own risk.
+This script is for educational purposes only. Use it at your own risk. The author is not responsible for any consequences resulting from the use of this script, including but not limited to game bans or other punitive actions by game administrators.
