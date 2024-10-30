@@ -1,0 +1,4 @@
+pymem
+requests
+colorama
+packaging
