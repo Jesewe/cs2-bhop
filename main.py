@@ -122,7 +122,7 @@ class Bhop:
     def start(self):
         """Starts the bunnyhop loop."""
 
-        Utility.set_console_title(f"CS2 TriggerBot {self.VERSION}")
+        Utility.set_console_title(f"CS2 Bhop {self.VERSION}")
 
         logging.info(f"{Fore.CYAN}Checking for updates...")
         Utility.check_for_updates(self.VERSION)
