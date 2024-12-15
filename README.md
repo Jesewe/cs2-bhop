@@ -2,6 +2,11 @@
    <img src="src/img/icon.png" alt="CS2 Bhop" width="200" height="200"> 
    <h1>CS2 Bhop</h1> 
    <p>A tool designed to enhance movement in Counter-Strike 2 through bunny hopping.</p> 
+
+   ![Downloads](https://img.shields.io/github/downloads/jesewe/cs2-bhop/total?style=for-the-badge&logo=github&color=D5006D)
+   ![Platforms](https://img.shields.io/badge/platform-Windows-blue?style=for-the-badge&color=D5006D)
+   ![License](https://img.shields.io/github/license/jesewe/cs2-triggerbot?style=for-the-badge&color=D5006D)
+   
    <a href="#features"><strong>Features</strong></a> •
    <a href="#installation"><strong>Installation</strong></a> •
    <a href="#usage"><strong>Usage</strong></a> •
