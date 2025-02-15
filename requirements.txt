@@ -1,4 +1,4 @@
-pymem
-requests
-colorama
-packaging
+pymem==1.14.0
+requests==2.32.3
+colorama==0.4.6
+packaging==24.2
