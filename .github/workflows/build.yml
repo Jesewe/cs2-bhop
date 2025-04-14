@@ -36,8 +36,20 @@ jobs:
         run: dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishTrimmed=true -o publish
 
       - name: Rename Executable
+        shell: pwsh
         run: |
-          ren publish\cs2_bhop.exe cs2-bhop.exe
+          if (Test-Path -Path "publish\cs2_bhop.exe") {
+            Rename-Item -Path "publish\cs2_bhop.exe" -NewName "cs2-bhop.exe"
+          }
+          else {
+            Write-Host "cs2_bhop.exe not found. Checking for cs2-bhop.exe..."
+            if (Test-Path -Path "publish\cs2-bhop.exe") {
+              Write-Host "Found cs2-bhop.exe, renaming not required."
+            }
+            else {
+              Write-Error "Executable file not found in the publish folder."
+            }
+          }
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
