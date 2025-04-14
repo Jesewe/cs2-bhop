@@ -21,28 +21,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
         with:
-          python-version: "3.12.5"
+          dotnet-version: '9.0.203'
 
-      - name: Install dependencies
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release
+
+      - name: Publish Application
+        run: dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishTrimmed=true -o publish
+
+      - name: Rename Executable
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Install PyInstaller
-        run: pip install pyinstaller
-
-      - name: Package Application
-        run: |
-          pyinstaller --noconfirm --onefile --icon "src\img\icon.ico" --name "CS2.Bhop" --version-file "version.txt" "main.py"
+          ren publish\cs2_bhop.exe cs2-bhop.exe
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CS2_Bhop
-          path: dist/CS2.Bhop.exe
+          name: cs2-bhop
+          path: publish/cs2-bhop.exe
 
   release:
     needs: build
@@ -55,15 +56,15 @@ jobs:
       - name: Download Build Artifact
         uses: actions/download-artifact@v4
         with:
-          name: CS2_Bhop
+          name: cs2-bhop
           path: ./artifact-download
 
       - name: Verify Downloaded Artifact
         run: |
           echo "Listing artifact-download directory:"
           ls -la ./artifact-download
-          if [ ! -f ./artifact-download/CS2.Bhop.exe ]; then
-            echo "Error: File CS2.Bhop.exe not found in artifact-download directory!"
+          if [ ! -f ./artifact-download/cs2-bhop.exe ]; then
+            echo "Error: File cs2-bhop.exe not found in artifact-download directory!"
             exit 1
           fi
 
@@ -73,7 +74,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.event.inputs.tag_name }}
-          name: CS2 Bhop - Release ${{ github.event.inputs.tag_name }}
+          name: cs2-bhop - Release ${{ github.event.inputs.tag_name }}
           body_path: ./ChangeLog.md
           files: |
-            ./artifact-download/CS2.Bhop.exe
+            ./artifact-download/cs2-bhop.exe
