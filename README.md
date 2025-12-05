@@ -1,16 +1,15 @@
 <div align="center">
   <img src="src/img/icon.png" alt="CS2 Bhop" width="200" height="200">
   <h1>CS2 Bhop</h1>
-  <p>A tool designed to enhance movement in Counter-Strike 2 through bunny hopping by automatically triggering jumps.</p>
+  <p>A lightweight tool designed to enhance movement in Counter-Strike 2 through bunny hopping by automatically triggering jumps.</p>
 
-![Downloads](https://img.shields.io/github/downloads/jesewe/cs2-bhop/total?style=for-the-badge&logo=github&color=D5006D)
-![Platforms](https://img.shields.io/badge/platform-Windows-blue?style=for-the-badge&color=D5006D)
-![License](https://img.shields.io/github/license/jesewe/cs2-bhop?style=for-the-badge&color=D5006D)
+[![Downloads](https://img.shields.io/github/downloads/jesewe/cs2-bhop/total?style=for-the-badge&logo=github&color=8E44AD)](https://github.com/Jesewe/cs2-bhop/releases)
+[![Latest Release](https://img.shields.io/github/v/release/jesewe/cs2-bhop?style=for-the-badge&logo=github&color=8E44AD)](https://github.com/Jesewe/cs2-bhop/releases/latest/)
+[![Ko-fi](https://img.shields.io/badge/ko--fi-support-8E44AD?style=for-the-badge&logo=ko-fi)](https://ko-fi.com/E1E51PAHB3)
+[![License](https://img.shields.io/github/license/jesewe/cs2-bhop?style=for-the-badge&color=8E44AD)](LICENSE)
 
-<a href="#features"><strong>Features</strong></a> •
 <a href="#installation"><strong>Installation</strong></a> •
 <a href="#usage"><strong>Usage</strong></a> •
-<a href="#technical-overview"><strong>Technical Overview</strong></a> •
 <a href="#troubleshooting"><strong>Troubleshooting</strong></a> •
 <a href="#contributing"><strong>Contributing</strong></a>
 
@@ -20,34 +19,17 @@
 
 # Overview
 
-**CS2 Bhop** is a lightweight C# utility for Counter-Strike 2 that facilitates bunny hopping by automatically triggering jump commands when the spacebar is pressed. It works by dynamically finding the running `cs2.exe` process, retrieving the base address for the game module (`client.dll`), and writing to process memory to simulate jump commands.
-
-# Features
-
-- **Automatic Bunny Hop:**  
-  The tool detects spacebar input and alternates between jump and reset states by writing specific values into the game’s memory.
-
-- **Dynamic Offset Retrieval:**  
-  Instead of hardcoding memory offsets, the jump offset is fetched dynamically from a remote file hosted on GitHub, ensuring compatibility with game updates.
-
-- **Update Checker:**  
-  Upon startup, the tool checks the GitHub repository for newer releases. If an update is available, a message is displayed to inform the user.
-
-- **User Feedback and Logging:**  
-  The application provides real-time feedback via console messages, including process detection, module base address retrieval, and offset validation.
-
-- **Minimal Performance Impact:**  
-  Designed to run in the background with low overhead, the utility integrates seamlessly while playing.
+**CS2 Bhop** is a lightweight C# utility for Counter-Strike 2 that facilitates bunny hopping by automatically triggering jump commands when the spacebar is pressed. It works by dynamically finding the running `cs2.exe` process, retrieving the base address for the game module (`client.dll`), and writing to process memory to simulate jump commands with precise timing control.
 
 # Installation
 
 ## Prerequisites
 
 - **Windows Operating System:**  
-  The tool is built using Windows-specific APIs, such as `user32.dll` for key state detection and `kernel32.dll` for memory operations.
+  The tool is built using Windows-specific APIs, such as `user32.dll` for key state detection and window management, and `kernel32.dll` for memory operations.
 
 - **.NET Framework / .NET Core:**  
-  You will need Visual Studio 2019 (or later) or a compatible .NET development environment to build the project.
+  You will need Visual Studio 2019 (or later) or a compatible .NET development environment to build the project. The project uses .NET 7+ features including JSON source generators.
 
 ## Building from Source
 
@@ -64,11 +46,11 @@
 
 3. **Build the Solution:**
 
-   Build the project in Visual Studio. Ensure you have administrator privileges if required by your system’s security settings since the tool performs process memory operations.
+   Build the project in Visual Studio. Ensure you have administrator privileges if required by your system's security settings since the tool performs process memory operations.
 
 4. **Run the Executable:**
 
-   Execute the generated `.exe` file. The console application will display the version (e.g., **v1.0.4**) and perform update checks on startup.
+   Execute the generated `.exe` file. The console application will display the version (e.g., **v1.0.5**) and perform update checks on startup.
 
 ## Pre-Built Executable
 
@@ -80,52 +62,52 @@ You can also download the ready-to-use executable from the [Releases](https://gi
    Make sure the game is running before you start the utility.
 
 2. **Start CS2 Bhop:**  
-   Run the CS2 Bhop executable. The console will search for `cs2.exe` and attempt to locate `client.dll` within the process.
+   Run the CS2 Bhop executable (preferably as administrator). The console will search for `cs2.exe` and attempt to locate `client.dll` within the process.
 
 3. **Initiate Bunny Hop:**  
-   Once the application confirms that the game process is valid, press the **SPACE** key. The tool will alternate between jump (writing the value `65537`) and reset (writing the value `256`) with short delays to perform a bunny hop.
+   Once the application confirms that the game process is valid, press and hold the **SPACE** key while playing. The tool will automatically manage jump states with precise timing to perform bunny hops.
 
-# Technical Overview
+4. **Window Focus Behavior:**  
+   The tool only works when CS2 is your active window. If you alt-tab or switch to another application, the bhop will automatically pause and resume when you return to the game.
 
-- **Process and Memory Handling:**  
-  The tool scans for the `cs2.exe` process and obtains a handle to it. It further retrieves the base address of `client.dll` using Windows API calls for module enumeration.
-- **Dynamic Offset Acquisition:**  
-  The jump offset (`dwForceJump`) is dynamically retrieved from a remote C++ header file hosted on GitHub:
-
-  ```cpp
-  // Example line from remote file:
-  constexpr std::ptrdiff_t jump = 0x186CD60;
-  ```
-
-  A regular expression is used to extract the hexadecimal offset value during the static initialization of the `Offsets` class.
-
-- **Memory Writing:**  
-  Using the `WriteProcessMemory` function from `kernel32.dll`, the tool writes to the game’s memory space to simulate jump inputs. This direct memory manipulation approach is key to achieving the automatic bunny hop functionality.
-
-- **Key Detection:**  
-  The spacebar input is detected using the `GetAsyncKeyState` function from `user32.dll`, ensuring responsive trigger detection even while the tool runs in the background.
-
-- **Update and Error Handling:**  
-  The application checks for new versions using the GitHub API and displays appropriate messages if an update is available. It also provides clear feedback if the game process or required modules are not detected.
+5. **Exit:**  
+   Close the console window to stop the utility. The tool will automatically clean up and reset the jump state.
 
 # Troubleshooting
 
 - **Failed to Fetch Offsets:**
+
   - Verify your internet connection.
-  - Ensure that the remote GitHub source (used to fetch the offset) is accessible.
+  - Ensure that the remote GitHub source (https://raw.githubusercontent.com/a2x/cs2-dumper) is accessible.
+  - Check if your firewall or antivirus is blocking the application's network access.
+
 - **Process Not Found:**
 
   - Confirm that Counter-Strike 2 (`cs2.exe`) is running.
-  - Run the tool with the necessary permissions (consider running as administrator).
+  - Run the tool with administrator privileges (right-click > Run as administrator).
+  - Try pressing 'R' to retry the process search.
 
 - **Module `client.dll` Not Detected:**
 
-  - Ensure that the game has fully loaded.
+  - Ensure that the game has fully loaded into the main menu or a match.
   - Restart the game or the utility if needed.
+  - Verify that your CS2 installation is not corrupted.
 
-- **Unexpected Errors:**
+- **Bhop Not Working:**
+
+  - Make sure CS2 is the active window (the tool only works when CS2 is in focus).
+  - Verify that the jump offset was successfully retrieved (check console output).
+  - Ensure you're holding the spacebar, not just tapping it.
+
+- **JSON Serialization Errors:**
+
+  - This version uses source generators which require .NET 7+. Ensure you're using the correct .NET version.
+  - If building from source, make sure the project targets the correct framework version.
+
+- **Unexpected Errors or Crashes:**
   - Check the console output for detailed error messages.
-  - Refer to the log file (if logging is enabled) for additional insights.
+  - Verify that the CS2 process hasn't been terminated.
+  - Try running as administrator if permission errors occur.
 
 # Contributing
 

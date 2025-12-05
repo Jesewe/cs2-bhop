@@ -4,6 +4,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 
 namespace Bhop
@@ -13,16 +14,35 @@ namespace Bhop
         // Import GetAsyncKeyState from user32.dll to detect key presses.
         [DllImport("user32.dll")]
         private static extern short GetAsyncKeyState(int vKey);
+
+        // Import GetForegroundWindow to check active window
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        private static extern int GetWindowThreadProcessId(IntPtr hWnd, out int processId);
+
         private const int VK_SPACE = 0x20;
 
-        // Jump flag: false means jump available, true means jump has been triggered.
-        private static bool jump = false;
+        // Constants for bunnyhop
+        private const int FORCE_JUMP_ACTIVE = 65537;
+        private const int FORCE_JUMP_INACTIVE = 256;
+
+        // Main loop sleep time for reduced CPU usage
+        private const int MAIN_LOOP_SLEEP = 1; // 1ms for better timing precision
+
+        // Jump state tracking
+        private static bool jumpActive = false;
+        private static DateTime lastActionTime = DateTime.MinValue;
+
+        // Configuration
+        private static int jumpDelayMs = 10; // Default jump delay in milliseconds
 
         // Memory object for the cs2.exe process.
         private static Memory cs2;
 
         // Current version constant.
-        private const string VERSION = "1.0.4";
+        private const string VERSION = "1.0.5";
 
         static void Main(string[] args)
         {
@@ -88,49 +108,116 @@ namespace Bhop
                     Console.WriteLine("Could not find cs2.exe process!");
                     Console.ResetColor();
                     Console.WriteLine("Press ENTER to exit or R to retry.");
-                    ConsoleKeyInfo keyInfo = Console.ReadKey(true); // true prevents the key from being shown.
+                    ConsoleKeyInfo keyInfo = Console.ReadKey(true);
                     if (keyInfo.Key == ConsoleKey.Enter)
                     {
                         return;  // Exit the application.
                     }
                     else if (keyInfo.Key == ConsoleKey.R)
                     {
-                        // Optionally, you could add a short delay or clear the screen.
                         Console.Clear();
-                        // Re-display header and update messages if desired.
                         Console.WriteLine("Retrying to locate cs2.exe process...");
                     }
                 }
             }
 
             Console.WriteLine("Press SPACE to perform bhop...");
+            Console.WriteLine("Bhop active - will only work when CS2 is the active window.");
 
-            // Infinite loop checking for the SPACE key press.
+            IntPtr forceJumpAddress = cs2.ClientBase + Offsets.dwForceJump;
+
+            // Main bhop loop with improved timing and state management
             while (true)
             {
-                if ((GetAsyncKeyState(VK_SPACE) & 0x8000) != 0)
+                try
                 {
-                    PerformBhop();
+                    // Check if CS2 is the active window
+                    if (!IsCS2Active())
+                    {
+                        // Reset jump state when game is not active
+                        if (jumpActive)
+                        {
+                            cs2.WriteMemory(forceJumpAddress, FORCE_JUMP_INACTIVE);
+                            jumpActive = false;
+                        }
+                        Thread.Sleep(MAIN_LOOP_SLEEP);
+                        continue;
+                    }
+
+                    DateTime currentTime = DateTime.Now;
+                    bool keyPressed = (GetAsyncKeyState(VK_SPACE) & 0x8000) != 0;
+
+                    if (keyPressed)
+                    {
+                        // Key is pressed - handle jump timing
+                        TimeSpan timeSinceLastAction = currentTime - lastActionTime;
+
+                        if (timeSinceLastAction.TotalMilliseconds >= jumpDelayMs)
+                        {
+                            if (!jumpActive)
+                            {
+                                // Activate jump
+                                cs2.WriteMemory(forceJumpAddress, FORCE_JUMP_ACTIVE);
+                                jumpActive = true;
+                                lastActionTime = currentTime;
+                            }
+                            else
+                            {
+                                // Deactivate jump
+                                cs2.WriteMemory(forceJumpAddress, FORCE_JUMP_INACTIVE);
+                                jumpActive = false;
+                                lastActionTime = currentTime;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Key not pressed - ensure jump is inactive
+                        if (jumpActive)
+                        {
+                            cs2.WriteMemory(forceJumpAddress, FORCE_JUMP_INACTIVE);
+                            jumpActive = false;
+                        }
+                    }
+
+                    Thread.Sleep(MAIN_LOOP_SLEEP);
+                }
+                catch (Exception ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"Error in main loop: {ex.Message}");
+                    Console.ResetColor();
+
+                    // Check if process is still valid
+                    if (cs2.process.HasExited)
+                    {
+                        Console.WriteLine("CS2 process has exited. Press ENTER to close.");
+                        Console.ReadLine();
+                        return;
+                    }
+
+                    Thread.Sleep(MAIN_LOOP_SLEEP);
                 }
             }
         }
 
-        // Method implementing bhop logic: toggles jump state by writing memory values with short delays.
-        private static void PerformBhop()
+        // Check if CS2 is the currently active window
+        private static bool IsCS2Active()
         {
-            if (!jump)
+            try
             {
-                Thread.Sleep(10);
-                // Write value 65537 at address: client.dll base + dwForceJump.
-                cs2.WriteMemory(cs2.ClientBase + Offsets.dwForceJump, 65537);
-                jump = true;
+                IntPtr foregroundWindow = GetForegroundWindow();
+                if (foregroundWindow == IntPtr.Zero)
+                    return false;
+
+                int processId;
+                GetWindowThreadProcessId(foregroundWindow, out processId);
+
+                return processId == cs2.process.Id;
             }
-            else
+            catch
             {
-                Thread.Sleep(10);
-                // Write value 256 to reset the jump state.
-                cs2.WriteMemory(cs2.ClientBase + Offsets.dwForceJump, 256);
-                jump = false;
+                return false;
             }
         }
 
@@ -147,8 +234,13 @@ namespace Bhop
                     wc.Headers.Add("User-Agent", "CS2-Bhop-Utility");
                     string json = wc.DownloadString("https://api.github.com/repos/Jesewe/cs2-bhop/tags");
 
-                    // Parse JSON to get the latest version.
-                    var tags = JsonSerializer.Deserialize<Tag[]>(json);
+                    // Parse JSON using source generator context
+                    var options = new JsonSerializerOptions
+                    {
+                        TypeInfoResolver = SourceGenerationContext.Default
+                    };
+                    var tags = JsonSerializer.Deserialize<Tag[]>(json, options);
+
                     if (tags != null && tags.Length > 0)
                     {
                         // Assume the first tag is the latest.
@@ -186,10 +278,17 @@ namespace Bhop
         }
 
         // Class mapping JSON response for GitHub tags.
-        private class Tag
+        public class Tag
         {
             public string name { get; set; }
         }
+    }
+
+    // JSON Source Generator Context
+    [JsonSourceGenerationOptions(WriteIndented = false)]
+    [JsonSerializable(typeof(Bhop.Tag[]))]
+    internal partial class SourceGenerationContext : JsonSerializerContext
+    {
     }
 
     /// <summary>
@@ -240,7 +339,7 @@ namespace Bhop
     {
         public IntPtr ProcessHandle { get; private set; }
         public IntPtr ClientBase { get; set; }
-        private Process process;
+        public Process process { get; private set; }
 
         public bool IsValid { get; private set; }
 

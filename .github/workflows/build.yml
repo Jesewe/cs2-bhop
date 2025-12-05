@@ -19,12 +19,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '9.0.203'
+          dotnet-version: "9.0.203"
 
       - name: Restore dependencies
         run: dotnet restore
@@ -63,7 +63,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download Build Artifact
         uses: actions/download-artifact@v4
@@ -81,12 +81,12 @@ jobs:
           fi
 
       - name: Create release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.event.inputs.tag_name }}
-          name: cs2-bhop - Release ${{ github.event.inputs.tag_name }}
+          name: CS2 Bhop - Release ${{ github.event.inputs.tag_name }}
           body_path: ./ChangeLog.md
           files: |
             ./artifact-download/cs2-bhop.exe
