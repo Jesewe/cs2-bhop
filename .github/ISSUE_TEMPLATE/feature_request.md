@@ -2,8 +2,9 @@
 name: Feature request
 about: Suggest an idea for this project
 title: "[Feature] "
-labels: "\U0001F680 Enhancement"
+labels: ''
 assignees: Jesewe
+
 ---
 
 ### Proposed Feature
