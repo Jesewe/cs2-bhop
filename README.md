@@ -5,7 +5,6 @@
 
 [![Downloads](https://img.shields.io/github/downloads/jesewe/cs2-bhop/total?style=for-the-badge&logo=github&color=8E44AD)](https://github.com/Jesewe/cs2-bhop/releases)
 [![Latest Release](https://img.shields.io/github/v/release/jesewe/cs2-bhop?style=for-the-badge&logo=github&color=8E44AD)](https://github.com/Jesewe/cs2-bhop/releases/latest/)
-[![Ko-fi](https://img.shields.io/badge/ko--fi-support-8E44AD?style=for-the-badge&logo=ko-fi)](https://ko-fi.com/E1E51PAHB3)
 [![License](https://img.shields.io/github/license/jesewe/cs2-bhop?style=for-the-badge&color=8E44AD)](LICENSE)
 
 <a href="#installation"><strong>Installation</strong></a> •
@@ -76,31 +75,26 @@ You can also download the ready-to-use executable from the [Releases](https://gi
 # Troubleshooting
 
 - **Failed to Fetch Offsets:**
-
   - Verify your internet connection.
   - Ensure that the remote GitHub source (https://raw.githubusercontent.com/a2x/cs2-dumper) is accessible.
   - Check if your firewall or antivirus is blocking the application's network access.
 
 - **Process Not Found:**
-
   - Confirm that Counter-Strike 2 (`cs2.exe`) is running.
   - Run the tool with administrator privileges (right-click > Run as administrator).
   - Try pressing 'R' to retry the process search.
 
 - **Module `client.dll` Not Detected:**
-
   - Ensure that the game has fully loaded into the main menu or a match.
   - Restart the game or the utility if needed.
   - Verify that your CS2 installation is not corrupted.
 
 - **Bhop Not Working:**
-
   - Make sure CS2 is the active window (the tool only works when CS2 is in focus).
   - Verify that the jump offset was successfully retrieved (check console output).
   - Ensure you're holding the spacebar, not just tapping it.
 
 - **JSON Serialization Errors:**
-
   - This version uses source generators which require .NET 7+. Ensure you're using the correct .NET version.
   - If building from source, make sure the project targets the correct framework version.
 
@@ -119,4 +113,4 @@ This project is provided for educational purposes only. Use of cheats or hacks i
 
 # License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0. See the [LICENSE](LICENSE) file for details.
