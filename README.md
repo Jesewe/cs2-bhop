@@ -20,6 +20,10 @@
 
 CS2 Bhop reads memory from `cs2.exe` to trigger jump commands when you hold space.
 
+<div align="center">
+  <img src="assets/preview/preview.gif" alt="CS2 Bhop Preview" width="720">
+</div>
+
 Features:
 * **Offset Dumper Integration**: Downloads `cs2-dumper` into `%LOCALAPPDATA%\Requests\ItsJesewe\dumper_output` and reads `buttons.json`, `offsets.json`, and `client_dll.json`.
 * **Patch Detection**: Checks the Steam News API on startup to detect game updates and refresh dumper binaries.
